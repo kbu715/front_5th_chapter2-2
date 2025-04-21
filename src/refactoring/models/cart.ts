@@ -1,21 +1,59 @@
 import { CartItem, Coupon } from "../../types";
 
 export const calculateItemTotal = (item: CartItem) => {
-  return 0;
+  const { product, quantity } = item;
+  const maxDiscountRate = getMaxApplicableDiscount(item);
+
+  return quantity * product.price * (1 - maxDiscountRate);
 };
 
 export const getMaxApplicableDiscount = (item: CartItem) => {
-  return 0;
+  const { product, quantity } = item;
+
+  const applicableDiscounts = product.discounts.filter((discount) => {
+    return discount.quantity <= quantity;
+  });
+
+  return applicableDiscounts.reduce((max, currentDiscount) => {
+    return Math.max(max, currentDiscount.rate);
+  }, 0);
+};
+
+export const getCouponAppliedTotal = (amount: number, coupon: Coupon) => {
+  if (coupon.discountType === "amount") {
+    return Math.max(0, amount - coupon.discountValue);
+  }
+
+  if (coupon.discountType === "percentage") {
+    return amount * (1 - coupon.discountValue / 100);
+  }
+
+  return amount;
 };
 
 export const calculateCartTotal = (
   cart: CartItem[],
   selectedCoupon: Coupon | null
 ) => {
+  const totalBeforeDiscount = cart.reduce((acc, item) => {
+    const { product, quantity } = item;
+    return acc + quantity * product.price;
+  }, 0);
+
+  const totalAfterItemDiscount = cart.reduce((acc, item) => {
+    return acc + calculateItemTotal(item);
+  }, 0);
+
+  const totalAfterDiscount = selectedCoupon
+    ? getCouponAppliedTotal(totalAfterItemDiscount, selectedCoupon)
+    : totalAfterItemDiscount;
+
+  const totalDiscount = totalBeforeDiscount - totalAfterDiscount;
+
   return {
-    totalBeforeDiscount: 0,
-    totalAfterDiscount: 0,
-    totalDiscount: 0,
+    totalBeforeDiscount,
+    totalAfterDiscount,
+    totalDiscount,
   };
 };
 
@@ -24,5 +62,19 @@ export const updateCartItemQuantity = (
   productId: string,
   newQuantity: number
 ): CartItem[] => {
-  return [];
+  if (newQuantity === 0) {
+    return cart.filter((item) => item.product.id !== productId);
+  }
+
+  return cart.map((item) => {
+    return item.product.id === productId
+      ? {
+          ...item,
+          quantity:
+            item.product.stock >= newQuantity
+              ? newQuantity
+              : item.product.stock,
+        }
+      : item;
+  });
 };
