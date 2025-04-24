@@ -3,7 +3,6 @@ import { AdminPage } from "./components/AdminPage.tsx";
 import { Coupon, Product } from "../types.ts";
 import { useCoupons, useProducts } from "./hooks";
 import { useLocalStorage } from "./hooks/utils/useLocalStorage.ts";
-import { useState } from "react";
 
 const initialProducts: Product[] = [
   {
@@ -48,20 +47,10 @@ const initialCoupons: Coupon[] = [
 ];
 
 const App = () => {
-  const { getItem, setItem } = useLocalStorage<boolean>("isAdmin", false);
-  const { getItem: getProducts } = useLocalStorage<Product[]>(
-    "products",
-    initialProducts
-  );
-  const { getItem: getCoupons } = useLocalStorage<Coupon[]>(
-    "coupons",
-    initialCoupons
-  );
-  const { products, updateProduct, addProduct } = useProducts(
-    getProducts() ?? []
-  );
-  const { coupons, addCoupon } = useCoupons(getCoupons() ?? []);
-  const [isAdmin, setIsAdmin] = useState(() => getItem() || false);
+  const [isAdmin, setIsAdmin] = useLocalStorage<boolean>("isAdmin", false);
+
+  const { products, updateProduct, addProduct } = useProducts(initialProducts);
+  const { coupons, addCoupon } = useCoupons(initialCoupons);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -71,7 +60,6 @@ const App = () => {
           <button
             onClick={() => {
               setIsAdmin((prev) => !prev);
-              setItem(!isAdmin);
             }}
             className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-100"
           >

@@ -1,28 +1,34 @@
-export const useLocalStorage = <T>(key: string, initialValue: T) => {
-  const setItem = (value: T) => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      throw new Error(`Failed to save to localStorage: ${error}`);
-    }
-  };
+import { useState, useCallback } from "react";
 
-  const getItem = (): T | null => {
+export function useLocalStorage<T>(key: string, initialValue: T) {
+  const isClient = typeof window !== "undefined";
+
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (!isClient) return initialValue;
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      return item ? (JSON.parse(item) as T) : initialValue;
     } catch (error) {
-      throw new Error(`Failed to get from localStorage: ${error}`);
+      console.warn(`useLocalStorage [get] issue for key "${key}":`, error);
+      return initialValue;
     }
-  };
+  });
 
-  const removeItem = () => {
-    try {
-      window.localStorage.removeItem(key);
-    } catch (error) {
-      throw new Error(`Failed to remove from localStorage: ${error}`);
-    }
-  };
+  const setValue = useCallback(
+    (value: T | ((prev: T) => T)) => {
+      try {
+        const valueToStore =
+          value instanceof Function ? value(storedValue) : value;
+        setStoredValue(valueToStore);
+        if (isClient) {
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        }
+      } catch (error) {
+        console.warn(`useLocalStorage [set] issue for key "${key}":`, error);
+      }
+    },
+    [key, storedValue, isClient]
+  );
 
-  return { setItem, getItem, removeItem };
-};
+  return [storedValue, setValue] as const;
+}
