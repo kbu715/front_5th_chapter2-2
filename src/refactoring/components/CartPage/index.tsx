@@ -1,7 +1,7 @@
-import type { Coupon, Product } from "../../types.ts";
-import { useCart } from "../hooks";
+import type { Coupon, Product } from "../../../types.ts";
+import { useCart } from "../../hooks";
 import { CartItemCard } from "./CartItemCard.tsx";
-import { Layout } from "./Layout.tsx";
+import { Layout } from "../Layout.tsx";
 import { ProductCard } from "./ProductCard.tsx";
 
 interface Props {

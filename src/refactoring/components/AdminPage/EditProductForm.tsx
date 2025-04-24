@@ -1,4 +1,4 @@
-import type { Product, Discount } from "../../types";
+import type { Product, Discount } from "../../../types";
 
 interface Props {
   products: Product[];

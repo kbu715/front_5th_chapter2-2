@@ -1,6 +1,6 @@
-import { CartPage } from "./components/CartPage.tsx";
-import { AdminPage } from "./components/AdminPage.tsx";
 import { Coupon, Product } from "../types.ts";
+import { AdminPage } from "./components/AdminPage/index.tsx";
+import { CartPage } from "./components/CartPage/index.tsx";
 import { useCoupons, useProducts } from "./hooks";
 import { useLocalStorage } from "./hooks/utils/useLocalStorage.ts";
 

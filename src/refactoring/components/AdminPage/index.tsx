@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Coupon, Discount, Product } from "../../types.ts";
-import { Layout } from "./Layout.tsx";
+import { Coupon, Discount, Product } from "../../../types.ts";
+import { Layout } from "../Layout.tsx";
 import NewProductForm from "./NewProductForm.tsx";
 import NewCouponForm from "./NewCouponForm.tsx";
 import CouponItem from "./CouponItem.tsx";

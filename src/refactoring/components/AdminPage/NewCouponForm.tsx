@@ -1,4 +1,4 @@
-import type { Coupon } from "../../types";
+import type { Coupon } from "../../../types.ts";
 
 interface Props {
   newCoupon: Omit<Coupon, "id">;
