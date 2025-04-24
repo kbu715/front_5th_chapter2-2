@@ -14,9 +14,16 @@ export const useProducts = (initialProducts: Product[]) => {
     setProducts((prevProducts) => [...prevProducts, newProduct]);
   };
 
+  const removeProduct = (product: Product) => {
+    setProducts((prevProducts) =>
+      prevProducts.filter((p) => p.id !== product.id)
+    );
+  };
+
   return {
     products,
     updateProduct,
     addProduct,
+    removeProduct,
   };
 };
