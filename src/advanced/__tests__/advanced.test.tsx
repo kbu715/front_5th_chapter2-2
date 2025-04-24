@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 import {
   act,
   fireEvent,
@@ -13,6 +13,7 @@ import { AdminPage } from "../../refactoring/components/AdminPage";
 import { Coupon, Product } from "../../types";
 import { getCouponAppliedTotal } from "../../refactoring/models/cart";
 import { useProducts } from "../../refactoring/hooks/useProduct";
+import { useLocalStorage } from "../../refactoring/hooks/utils/useLocalStorage";
 
 const mockProducts: Product[] = [
   {
@@ -310,6 +311,44 @@ describe("advanced > ", () => {
       expect(result.current.products).toHaveLength(2);
       expect(result.current.products[0]).toEqual(mockProducts[1]);
       expect(result.current.products[1]).toEqual(mockProducts[2]);
+    });
+  });
+
+  describe("useLocalStorage hook 테스트", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    test("초기 localStorage 값이 없을 경우 초기값을 설정한다", () => {
+      const { result } = renderHook(() =>
+        useLocalStorage<boolean>("isAdmin", false)
+      );
+
+      expect(result.current[0]).toBe(false);
+    });
+
+    test("setValue로 값이 변경되면 localStorage에도 반영된다", () => {
+      const { result } = renderHook(() =>
+        useLocalStorage<boolean>("isAdmin", false)
+      );
+
+      act(() => {
+        result.current[1](true);
+      });
+
+      expect(result.current[0]).toBe(true);
+      expect(localStorage.getItem("isAdmin")).toBe(JSON.stringify(true));
+    });
+
+    test("setValue에 함수형 업데이트가 적용된다", () => {
+      const { result } = renderHook(() => useLocalStorage<number>("count", 0));
+
+      act(() => {
+        result.current[1]((prev) => prev + 5);
+      });
+
+      expect(result.current[0]).toBe(5);
+      expect(localStorage.getItem("count")).toBe("5");
     });
   });
 });
